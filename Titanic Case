@@ -1,0 +1,34 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as stats
+from sklearn.model_selection import cross_validate, train_test_split
+from sklearn.tree import DecisionTreeClassifier as DTC
+from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.tree import export_graphviz
+from sklearn.externals.six import StringIO  
+from IPython.display import Image  
+from pydot import graph_from_dot_data
+from sklearn.metrics import f1_score
+
+df = pd.read_csv("titanic.csv", header=0, index_col='PassengerId', na_values=['NA'])
+df.head()
+df2 = df.dropna(subset=['Age'])
+X = df2.drop(['Name','Ticket','SibSp', 'Parch', 'Parch', 'Embarked', 'Cabin', 'Survived'], axis=1)
+y = df2['Survived']
+
+for field in ['Sex']:
+    X_final[field] = pd.Categorical(X_final[field]).codes
+ #check for missing values
+ X_final.isna()
+ clfr_DT = DTC(criterion='gini', max_depth=None, random_state=241).fit(X_final, y)
+ dot_data = StringIO()
+export_graphviz(clfr_DT, out_file=dot_data, feature_names=X_final.columns)
+(graph, ) = graph_from_dot_data(dot_data.getvalue())
+Image(graph.create_png())
+#yes, the tree is not very informative, but the case itself was to indentify 4 main factors that influenced passangers' chances to survive on Titanic (and rank them)
+importances = clfr_DT.feature_importances_
+print(list(zip(X_final.columns, clfr_DT.feature_importances_)))
+
+2 most important - 'Fare' and 'Sex'
